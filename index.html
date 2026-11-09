@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+  <meta name="theme-color" content="#09070d">
+  <meta name="description" content="Cardápio digital da Vice Burguer">
+  <title>Vice Burguer — Cardápio</title>
+  <link rel="stylesheet" href="/src/styles.css">
+  <!-- Meta Pixel -->
+  <script>
+    (function (window, document) {
+      if (window.fbq) return;
+
+      const pixel = window.fbq = function () {
+        if (pixel.callMethod) {
+          pixel.callMethod.apply(pixel, arguments);
+        } else {
+          pixel.queue.push(arguments);
+        }
+      };
+      if (!window._fbq) window._fbq = pixel;
+      pixel.push = pixel;
+      pixel.loaded = true;
+      pixel.version = '2.0';
+      pixel.queue = [];
+
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+      document.head.appendChild(script);
+    })(window, document);
+
+    fbq('init', '3383402028501768');
+    fbq('track', 'PageView');
+  </script>
+</head>
+<body>
+  <noscript><img width="1" height="1" style="display:none" alt=""
+    src="https://www.facebook.com/tr?id=3383402028501768&amp;ev=PageView&amp;noscript=1"></noscript>
+  <header class="hero">
+    <img class="hero-img" src="/src/images/banner.webp" alt="Vice Burguer, sabor que domina a noite">
+    <div class="shell hero-content"><div class="hero-copy">
+      <div class="brand-intro"><img class="brand-logo" src="/src/images/logo.webp" alt="Logo Vice Burguer em neon"><div class="brand-heading">
+        <div class="eyebrow"><i class="pulse"></i><span id="statusText">Verificando horário...</span></div>
+        <h1>Vice Burguer</h1><p class="tagline">Seu desejo por burger começa aqui.</p>
+      </div></div>
+      <div class="hero-facts">
+        <div class="fact"><span>⏱</span><div><b>45–55 min</b><span>tempo estimado</span></div></div>
+        <div class="fact"><span>🛵</span><div><b>Entrega grátis</b><span>sem taxa</span></div></div>
+        <div class="fact"><span>🌙</span><div><b>12:00–00:00</b><span>terça a domingo</span></div></div>
+      </div>
+    </div></div>
+  </header>
+
+  <div class="sticky"><div class="shell toolbar">
+    <nav class="nav" aria-label="Categorias"><button class="chip active" data-category="combos">Combos</button><button class="chip" data-category="burguers">Burguers</button><button class="chip" data-category="batatas">Batatas</button><button class="chip" data-category="bebidas">Bebidas</button></nav>
+    <button class="cart-trigger" onclick="toggleCart(true)">🍔 <span class="cart-label">Carrinho</span><span class="cart-count" id="cartCount">0</span></button>
+  </div></div>
+
+  <main class="shell" id="menu">
+    <div id="menuRoot"></div>
+  </main>
+
+  <div class="mobile-cart-bar" id="mobileCartBar" aria-live="polite">
+    <div class="mobile-cart-info"><span class="mobile-cart-icon">🍔</span><div><span id="mobileCartLabel">0 itens</span><strong id="mobileCartTotal">R$ 0,00</strong></div></div>
+    <button type="button" id="mobileCartAction" onclick="toggleCart(true)">Resumo do Pedido <span>→</span></button>
+  </div>
+
+  <div class="backdrop" id="backdrop" onclick="closeLayers()"></div>
+  <aside class="drawer" id="cart" role="dialog" aria-modal="true" aria-labelledby="cartTitle" inert>
+    <div class="drawer-head"><h2 id="cartTitle" tabindex="-1">Seu pedido</h2><button class="icon-btn" onclick="toggleCart(false)" aria-label="Fechar">✕</button></div>
+    <div class="drawer-body" id="cartBody"></div><div class="drawer-foot" id="cartFoot"></div>
+  </aside>
+
+  <section class="modal product-modal" id="productModal" aria-modal="true" role="dialog" aria-labelledby="productTitle" inert>
+    <div class="modal-head"><h2 id="productTitle" tabindex="-1">Detalhes</h2><button class="icon-btn" onclick="closeProduct()" aria-label="Fechar">✕</button></div>
+    <div class="modal-body" id="productBody"></div>
+    <div class="product-actions">
+      <strong class="price" id="modalPrice" aria-live="polite"></strong>
+      <button class="primary" type="button" onclick="addSelected()">Adicionar ao carrinho</button>
+    </div>
+  </section>
+
+  <section class="modal" id="checkoutModal" aria-modal="true" role="dialog" aria-labelledby="checkoutTitle" inert>
+    <div class="modal-head"><h2 id="checkoutTitle" tabindex="-1">Finalizar pedido</h2><button class="icon-btn" onclick="closeCheckout()" aria-label="Fechar">✕</button></div>
+    <form class="modal-body" id="checkoutForm" onsubmit="sendOrder(event)">
+      <button class="checkout-back" type="button" onclick="toggleCart(true)">← Voltar ao resumo</button>
+      <div class="field"><label for="customer">SEU NOME</label><input id="customer" required pattern=".*\S.*" autocomplete="name" placeholder="Como podemos te chamar?"></div>
+      <div id="addressFields">
+        <div class="field"><label for="cep">CEP DE ENTREGA</label><div class="cep-row"><input id="cep" required pattern="[0-9]{5}[\-]?[0-9]{3}" title="Informe os 8 números do CEP" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="cepStatus" oninput="maskCep(this)"><button class="cep-button" id="cepButton" type="button" onclick="lookupCep()">Buscar CEP</button></div><small class="cep-status" id="cepStatus" aria-live="polite">Busque pelo CEP ou preencha o endereço abaixo.</small></div>
+        <div class="field"><label for="street">RUA</label><input id="street" required pattern=".*\S.*" autocomplete="address-line1" placeholder="Nome da rua"></div>
+        <div class="row"><div class="field"><label for="number">NÚMERO</label><input id="number" required pattern=".*\S.*" placeholder="Ex.: 123 ou s/n"></div><div class="field"><label for="neighborhood">BAIRRO</label><input id="neighborhood" required pattern=".*\S.*" placeholder="Seu bairro"></div></div>
+        <div class="field"><label for="addressComplement">COMPLEMENTO <small>(OPCIONAL)</small></label><input id="addressComplement" autocomplete="address-line2" placeholder="Apto., bloco ou referência"></div>
+        <div class="row address-city-row"><div class="field"><label for="city">CIDADE</label><input id="city" required pattern=".*\S.*" autocomplete="address-level2" placeholder="Cidade"></div><div class="field"><label for="state">UF</label><input id="state" required pattern="[A-Za-z]{2}" autocomplete="address-level1" maxlength="2" placeholder="UF" oninput="this.value=this.value.toUpperCase()"></div></div>
+      </div>
+      <div class="field"><label>PAGAMENTO — SELECIONE UMA OPÇÃO</label><input id="payment" type="hidden" value=""><div class="payment-options">
+        <label class="payment-option"><input type="radio" name="paymentChoice" value="Pix" required onchange="selectPayment(this)"><span class="payment-name"><i>◆</i><span><b>Pix</b><small>Pagamento instantâneo</small></span></span><span class="payment-check">✓</span></label>
+        <label class="payment-option"><input type="radio" name="paymentChoice" value="Dinheiro" required onchange="selectPayment(this)"><span class="payment-name"><i>💵</i><span><b>Dinheiro</b><small>Pague no recebimento</small></span></span><span class="payment-check">✓</span></label>
+        <label class="payment-option"><input type="radio" name="paymentChoice" value="Cartão na entrega" required onchange="selectPayment(this)"><span class="payment-name"><i>💳</i><span><b>Cartão na entrega</b><small>Crédito ou débito</small></span></span><span class="payment-check">✓</span></label>
+      </div></div>
+      <div class="field" id="changeField" style="display:none"><label for="change">TROCO PARA</label><input id="change" inputmode="decimal" placeholder="Ex.: R$ 100,00"></div>
+      <div class="pix" id="pixBox"><div><small>CHAVE PIX</small><br><code>05940569935</code></div><button type="button" class="copy" onclick="copyPix()">Copiar</button></div>
+      <div class="field" style="margin-top:14px"><label for="orderNotes">OBSERVAÇÕES DO PEDIDO</label><textarea id="orderNotes" placeholder="Ponto da carne, referência, retirar algum ingrediente..."></textarea></div>
+      <button class="primary order-btn" type="submit">Enviar pedido no WhatsApp</button><p class="fine">Você poderá revisar a mensagem antes de enviar.</p>
+    </form>
+  </section>
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
